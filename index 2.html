@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4779a8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>ClassLight - Analisis Pencahayaan</title>
+
+<style>
+:root {
+  --site-primary: #4779A8;
+  --site-secondary: #EAF4FF;
+  --site-background: #F4F8FC;
+  --site-on-primary: #FFFFFF;
+  --site-on-secondary: #315B80;
+  --site-on-background: #26394B;
+  --site-font-body: Arial, Helvetica, sans-serif;
+  --site-font-heading: Arial, Helvetica, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --blue: var(--site-primary);
+  --light-blue: var(--site-secondary);
+  --cream: #fffaf0;
+  --yellow: #ffd66b;
+  --ink: var(--site-on-background);
+  --muted: #68798a;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  width: 100%;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  font-family: var(--site-font-body);
+  color: light-dark(var(--site-on-background), #edf4ef);
+  background-color: var(--site-background);
+  background-color: light-dark(var(--site-background), #17251e);
+  min-height: 100vh;
+  overflow-wrap: break-word;
+  -webkit-tap-highlight-color: transparent;
+}
+header {
+  padding: 30px 18px 36px;
+  text-align: center;
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  border-radius: 0 0 32px 32px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: "☀";
+  position: absolute;
+  right: 6%;
+  top: -25px;
+  color: #ffe49a;
+  font-size: 110px;
+  opacity: .8;
+}
+header::after {
+  content: "✦";
+  position: absolute;
+  left: 8%;
+  bottom: 12px;
+  color: #fff0bd;
+  font-size: 32px;
+}
+.logo {
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+header p {
+  margin: 5px auto 0;
+  max-width: 530px;
+  line-height: 1.6;
+}
+main {
+  width: min(920px, 92%);
+  margin: 24px auto 40px;
+}
+.card {
+  background: rgba(255,255,255,.96);
+  border: 1px solid #e2eaf1;
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 7px 22px #375a7710;
+}
+h2 {
+  margin: 0 0 15px;
+  font-size: 20px;
+}
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.row > * {
+  flex: 1 1 180px;
+}
+label {
+  display: block;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+select, input, textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid #cfdae5;
+  border-radius: 11px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-height: 46px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform .15s, opacity .15s;
+}
+button:hover {
+  transform: translateY(-1px);
+}
+button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.primary {
+  background: var(--blue);
+  color: white;
+}
+.sunny {
+  background: var(--yellow);
+  color: #594316;
+}
+.soft {
+  background: var(--light-blue);
+  color: #315b80;
+}
+.danger {
+  background: #fff0ed;
+  color: #a54134;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 5px;
+}
+.actions button {
+  flex: 1 1 160px;
+}
+.camera-box {
+  background: #edf3f7;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 65vh;
+  object-fit: contain;
+  background: #152535;
+}
+.camera-placeholder {
+  text-align: center;
+  padding: 28px;
+  color: var(--muted);
+}
+.camera-placeholder span {
+  display: block;
+  font-size: 42px;
+  margin-bottom: 8px;
+}
+[hidden] {
+  display: none !important;
+}
+.score {
+  background: #fff6d9;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 15px;
+}
+.score-number {
+  font-size: 36px;
+  font-weight: bold;
+  color: #9a6a00;
+}
+.meter {
+  height: 12px;
+  background: #eadfc4;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#f4b84c,#ffe78a);
+  transition: width .25s;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+}
+.stat {
+  background: var(--light-blue);
+  padding: 17px;
+  border-radius: 15px;
+  min-width: 0;
+}
+.stat small {
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+}
+.stat strong {
+  font-size: 24px;
+}
+.notice {
+  padding: 13px 15px;
+  background: #fff8e7;
+  border-left: 4px solid var(--yellow);
+  border-radius: 8px;
+  line-height: 1.6;
+  font-size: 14px;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.status {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td {
+  text-align: left;
+  padding: 11px 8px;
+  border-bottom: 1px solid #e7edf2;
+}
+th {
+  color: #54718a;
+}
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 22px;
+}
+footer {
+  text-align: center;
+  padding: 5px 18px calc(35px + env(safe-area-inset-bottom));
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* HP Android dan iPhone */
+@media (max-width: 600px) {
+  header {
+    padding: 25px 16px 30px;
+    border-radius: 0 0 24px 24px;
+  }
+  header::before {
+    font-size: 70px;
+    right: 2%;
+  }
+  h1 {
+    font-size: 26px;
+  }
+  main {
+    width: calc(100% - 24px);
+    margin: 16px auto 28px;
+  }
+  .card {
+    padding: 16px;
+    border-radius: 17px;
+  }
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .row > * {
+    width: 100%;
+    flex: auto;
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .actions button {
+    width: 100%;
+    min-height: 48px;
+  }
+  #makeSummary, #copySummary {
+    width: 100%;
+    min-height: 48px;
+  }
+  .camera-box {
+    min-height: 180px;
+  }
+  .stat {
+    padding: 13px;
+  }
+  .stat strong {
+    font-size: 20px;
+  }
+  .score-number {
+    font-size: 32px;
+  }
+  table {
+    min-width: 440px;
+  }
+}
+
+/* Tablet Android dan iPad */
+@media (min-width: 601px) and (max-width: 1024px) {
+  main {
+    width: min(94%, 850px);
+  }
+  .card {
+    padding: 24px;
+  }
+  .actions {
+    gap: 12px;
+  }
+  .actions button {
+    flex: 1 1 180px;
+    min-height: 48px;
+  }
+  .camera-box {
+    min-height: 260px;
+  }
+  video {
+    max-height: 55vh;
+  }
+}
+
+/* HP atau tablet dalam posisi mendatar */
+@media (orientation: landscape) and (max-height: 500px) {
+  header {
+    padding: 18px;
+  }
+  header::before {
+    font-size: 60px;
+  }
+  .camera-box {
+    min-height: 120px;
+  }
+  video {
+    max-height: 55vh;
+  }
+}
+
+
+/* Preview appearance controls and accessible light/dark surfaces */
+#app {
+  width: 100%;
+  min-height: 100vh;
+  border-radius: 0;
+  background-color: var(--site-background);
+  background-color: light-dark(var(--site-background), #17251e);
+  color: light-dark(var(--site-on-background), #edf4ef);
+}
+header h1, h2 {
+  font-family: var(--site-font-heading);
+}
+h1 { font-size: calc(30px * var(--site-heading-scale)); }
+h2 { font-size: calc(20px * var(--site-heading-scale)); }
+main { gap: calc(0px * var(--site-spacing-scale)); }
+.card {
+  padding: calc(22px * var(--site-spacing-scale));
+  border-radius: calc(20px * var(--site-radius-scale));
+  background: light-dark(rgba(255,255,255,.97), #1d2d24);
+  border-color: light-dark(#e2eaf1, #35493c);
+  color: light-dark(var(--site-on-background), #edf4ef);
+  box-shadow: 0 7px 22px light-dark(#375a7710, #00000022);
+}
+.stat {
+  background: light-dark(var(--site-secondary), #24382f);
+}
+.stat small, .subtitle, footer {
+  color: light-dark(var(--muted), #b5c6ba);
+}
+select, input, textarea {
+  background: light-dark(#ffffff, #22352b);
+  color: light-dark(var(--site-on-background), #edf4ef);
+  border-color: light-dark(#cfdae5, #43594a);
+}
+.camera-box { background: light-dark(#edf3f7, #142019); }
+.notice { color: light-dark(#3d4c40, #e8eadf); }
+footer {
+  background: light-dark(var(--site-secondary), #203329);
+}
+header::before, header::after {
+  opacity: var(--site-decoration-opacity);
+}
+@media (max-width: 600px) {
+  .card { padding: calc(16px * var(--site-spacing-scale)); }
+  h1 { font-size: calc(26px * var(--site-heading-scale)); }
+}
+
+</style>
+</head>
+
+<body>
+<div id="app">
+<header>
+  <div class="logo">☀️💡</div>
+  <h1>ClassLight</h1>
+  <p><strong>Natural Light vs Artificial Lighting</strong></p>
+  <p>Analisis pencahayaan kelas untuk belajar lebih nyaman dan menghemat energi.</p>
+</header>
+
+<main>
+
+<section class="card">
+  <h2>📷 1. Periksa Kecerahan Kelas</h2>
+  <p class="subtitle">
+    Arahkan kamera ke area yang ingin diamati. Skor ini adalah perkiraan
+    kecerahan gambar, bukan pengukuran lux.
+  </p>
+
+  <label for="cameraChoice">Pilih kamera</label>
+  <select id="cameraChoice">
+    <option value="environment">Kamera belakang</option>
+    <option value="user">Kamera depan</option>
+  </select>
+
+  <div class="camera-box">
+    <div class="camera-placeholder" id="cameraPlaceholder">
+      <span>📸</span>
+      Kamera belum dinyalakan.
+    </div>
+    <video id="video" autoplay playsinline webkit-playsinline muted hidden></video>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="primary" id="startCamera">▶ Nyalakan Kamera</button>
+    <button type="button" class="soft" id="stopCamera">■ Matikan Kamera</button>
+    <button type="button" class="sunny" id="measure">☀ Cek Kecerahan</button>
+  </div>
+
+  <p id="cameraStatus" class="status" role="status" aria-live="polite">
+    Tekan Nyalakan Kamera untuk memulai.
+  </p>
+
+  <div class="score">
+    <div>Skor kecerahan visual</div>
+    <div class="score-number">
+      <span id="brightness">—</span>
+      <small style="font-size:15px"> / 100</small>
+    </div>
+    <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    <p id="brightnessMessage" class="subtitle">Belum ada pengukuran.</p>
+  </div>
+
+  <canvas id="canvas" hidden></canvas>
+
+  <div class="notice">
+    ⚠️ Skor kamera bukan nilai lux. Hasil dipengaruhi kamera, sudut,
+    bayangan, dan paparan otomatis. Untuk pengukuran lux yang dapat
+    diandalkan, gunakan lux meter atau alat yang terkalibrasi.
+  </div>
+</section>
+
+<section class="card">
+  <h2>📝 2. Catat Pengamatan</h2>
+
+  <div class="row">
+    <div>
+      <label for="area">Area kelas</label>
+      <select id="area">
+        <option>Dekat jendela</option>
+        <option>Tengah kelas</option>
+        <option>Belakang kelas</option>
+        <option>Sudut kelas</option>
+      </select>
+    </div>
+    <div>
+      <label for="condition">Kondisi pencahayaan</label>
+      <select id="condition">
+        <option>Cahaya alami saja</option>
+        <option>Lampu saja</option>
+        <option>Cahaya alami + lampu</option>
+        <option>Semua lampu mati</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="lux">Hasil pengukuran lux (opsional)</label>
+  <input id="lux" type="number" min="0" step="any" placeholder="Contoh: 320">
+
+  <label for="notes">Catatan kondisi</label>
+  <textarea id="notes" placeholder="Contoh: Cuaca cerah, tirai terbuka, pukul 10 pagi..."></textarea>
+
+  <div class="actions">
+    <button type="button" class="primary" id="saveRecord">＋ Simpan Pengamatan</button>
+    <button type="button" class="soft" id="exportCsv">⇩ Unduh CSV</button>
+  </div>
+  <p id="recordStatus" class="status" role="status" aria-live="polite"></p>
+</section>
+
+<section class="card">
+  <h2>📊 3. Ringkasan Data</h2>
+
+  <div class="stats">
+    <div class="stat">
+      <small>Total pengamatan</small>
+      <strong id="total">0</strong>
+    </div>
+    <div class="stat">
+      <small>Rata-rata lux terukur</small>
+      <strong id="average">—</strong>
+    </div>
+  </div>
+
+  <p class="subtitle">
+    Rata-rata hanya menghitung data yang memiliki nilai lux. Skor kamera tidak dimasukkan sebagai lux.
+  </p>
+  <div class="notice" id="dataInsight">Tambahkan hasil pengukuran untuk melihat ringkasan data.</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Area</th><th>Kondisi</th><th>Lux</th><th>Skor kamera</th><th>Aksi</th></tr>
+      </thead>
+      <tbody id="records">
+        <tr><td colspan="5" class="empty">Belum ada data pengamatan.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>🌱 4. Tips Hemat Energi</h2>
+  <p>☀️ Buka tirai saat cahaya matahari cukup.</p>
+  <p>💡 Nyalakan lampu hanya di area yang membutuhkannya.</p>
+  <p>📖 Pastikan meja belajar cukup terang dan tidak menyilaukan.</p>
+  <p>🔌 Matikan lampu saat ruangan tidak digunakan, jika aman dan sesuai kebutuhan.</p>
+
+  <div class="notice">
+    <strong>Penjelasan singkat</strong>
+    Cahaya alami berasal dari matahari, sedangkan cahaya buatan berasal
+    dari lampu. Memanfaatkan cahaya alami saat siang dapat mengurangi
+    kebutuhan listrik, selama pencahayaan tetap cukup, merata, dan nyaman.
+  </div>
+</section>
+
+<section class="card">
+  <h2>🔎 5. Temuan & Kesimpulan</h2>
+  <p class="subtitle">
+    Isi bagian ini berdasarkan hasil pengamatanmu.
+  </p>
+
+  <label for="finding">Apa yang kamu temukan?</label>
+  <textarea id="finding" placeholder="Contoh: Area dekat jendela lebih terang pada siang hari..."></textarea>
+
+  <label for="conclusion">Kesimpulan pengamatan</label>
+  <textarea id="conclusion" placeholder="Bandingkan cahaya alami dan lampu berdasarkan data..."></textarea>
+
+  <label for="suggestion">Saran hemat energi</label>
+  <textarea id="suggestion" placeholder="Contoh: Memanfaatkan cahaya matahari saat pencahayaan sudah cukup..."></textarea>
+
+  <button type="button" class="primary" id="makeSummary">✨ Buat Ringkasan Laporan</button>
+  <div id="summaryOutput" class="notice" hidden></div>
+  <button type="button" class="soft" id="copySummary" hidden>📋 Salin Ringkasan</button>
+  <p id="summaryStatus" class="status" role="status" aria-live="polite"></p>
+</section>
+
+</main>
+
+<footer>
+  ☀️ ClassLight — Proyek Analisis Pencahayaan Kelas<br>
+  Bisa digunakan di HP dan tablet melalui browser yang kompatibel.
+</footer>
+</div>
+
+<script>
+"use strict";
+
+let cameraStream = null;
+let records = [];
+
+const $ = id => document.getElementById(id);
+
+function showCameraStatus(message) {
+  $("cameraStatus").textContent = message;
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+
+  $("video").srcObject = null;
+  $("video").hidden = true;
+  $("cameraPlaceholder").hidden = false;
+  $("brightness").textContent = "—";
+  $("meterFill").style.width = "0%";
+  $("brightnessMessage").textContent = "Belum ada pengukuran.";
+}
+
+async function startCamera() {
+  const button = $("startCamera");
+
+  if (!navigator.mediaDevices ||
+      typeof navigator.mediaDevices.getUserMedia !== "function") {
+    showCameraStatus(
+      "Kamera tidak tersedia pada konteks ini. Buka halaman melalui HTTPS atau localhost."
+    );
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Meminta izin...";
+
+  try {
+    stopCamera();
+
+    const facing = $("cameraChoice").value;
+
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: facing } },
+        audio: false
+      });
+    } catch (firstError) {
+      if (firstError.name === "NotAllowedError" ||
+          firstError.name === "PermissionDeniedError") {
+        throw firstError;
+      }
+
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: facing } },
+        audio: false
+      });
+    }
+
+    $("video").srcObject = cameraStream;
+    $("video").hidden = false;
+    $("cameraPlaceholder").hidden = true;
+
+    await $("video").play();
+    showCameraStatus("✅ Kamera aktif! Tekan Cek Kecerahan untuk menganalisis gambar.");
+  } catch (error) {
+    stopCamera();
+
+    const messages = {
+      NotAllowedError: "Izin kamera ditolak. Periksa izin kamera di pengaturan browser.",
+      NotFoundError: "Kamera tidak ditemukan pada perangkat ini.",
+      NotReadableError: "Kamera sedang dipakai aplikasi lain atau tidak dapat dibuka.",
+      OverconstrainedError: "Kamera yang dipilih tidak tersedia. Coba pilihan lainnya.",
+      SecurityError: "Akses kamera diblokir oleh pengaturan keamanan browser."
+    };
+
+    showCameraStatus(
+      "❌ " + (messages[error.name] || "Kamera gagal dibuka.") +
+      " Error: " + error.name + ". Coba HTTPS atau localhost dan periksa izin kamera."
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = "▶ Nyalakan Kamera";
+  }
+}
+
+function measureBrightness() {
+  const video = $("video");
+
+  if (!cameraStream || !video.videoWidth || video.readyState < 2) {
+    showCameraStatus("Nyalakan kamera dan tunggu gambar muncul terlebih dahulu.");
+    return;
+  }
+
+  try {
+    const canvas = $("canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    canvas.width = 80;
+    canvas.height = 60;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let total = 0;
+    const count = pixels.length / 4;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      total += 0.2126 * pixels[i] +
+               0.7152 * pixels[i + 1] +
+               0.0722 * pixels[i + 2];
+    }
+
+    const score = Math.round(total / count / 255 * 100);
+    $("brightness").textContent = score;
+    $("meterFill").style.width = score + "%";
+
+    if (score < 25) {
+      $("brightnessMessage").textContent =
+        "Gambar relatif gelap. Periksa apakah area belajar memerlukan cahaya tambahan.";
+    } else if (score < 60) {
+      $("brightnessMessage").textContent =
+        "Kecerahan gambar sedang. Periksa kenyamanan membaca dan pemerataan cahaya.";
+    } else {
+      $("brightnessMessage").textContent =
+        "Gambar relatif terang. Pastikan tidak ada silau dan cahaya merata.";
+    }
+
+    showCameraStatus("Skor visual diperbarui. Skor ini bukan pengukuran lux.");
+  } catch (error) {
+    showCameraStatus("Gagal membaca gambar kamera. Coba nyalakan ulang kamera.");
+  }
+}
+
+function saveRecord() {
+  const luxText = $("lux").value.trim();
+  const lux = luxText === "" ? null : Number(luxText);
+
+  if (luxText !== "" && (!Number.isFinite(lux) || lux < 0)) {
+    $("recordStatus").textContent = "Masukkan nilai lux yang valid atau kosongkan kolom.";
+    return;
+  }
+
+  records.push({
+    area: $("area").value,
+    condition: $("condition").value,
+    lux,
+    score: $("brightness").textContent === "—" ? null : Number($("brightness").textContent),
+    notes: $("notes").value.trim(),
+    time: new Date().toLocaleString("id-ID")
+  });
+
+  renderRecords();
+  $("lux").value = "";
+  $("notes").value = "";
+  $("recordStatus").textContent = "✅ Pengamatan berhasil disimpan.";
+}
+
+function renderRecords() {
+  $("total").textContent = records.length;
+
+  const measured = records.filter(r => r.lux !== null);
+  const average = measured.length
+    ? measured.reduce((sum, r) => sum + r.lux, 0) / measured.length
+    : null;
+
+  $("average").textContent = average === null ? "—" : average.toFixed(1);
+  const insight = $("dataInsight");
+  if (!measured.length) {
+    insight.textContent = "Belum ada nilai lux. Masukkan hasil dari lux meter untuk membandingkan kondisi pencahayaan secara kuantitatif.";
+  } else {
+    const minLux = Math.min(...measured.map(r => r.lux));
+    const maxLux = Math.max(...measured.map(r => r.lux));
+    insight.textContent = `Dari ${measured.length} pengamatan dengan nilai lux, hasil terendah ${minLux} lux dan tertinggi ${maxLux} lux. Bandingkan tiap titik dengan standar pencahayaan ruang kelas yang relevan sebelum membuat rekomendasi.`;
+  }
+
+  const tbody = $("records");
+  tbody.replaceChildren();
+
+  if (!records.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.className = "empty";
+    td.textContent = "Belum ada data pengamatan.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  records.forEach((record, index) => {
+    const tr = document.createElement("tr");
+
+    [record.area, record.condition,
+     record.lux === null ? "—" : record.lux,
+     record.score === null ? "—" : record.score + "/100"].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    const actionCell = document.createElement("td");
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "danger";
+    deleteButton.textContent = "Hapus";
+
+    deleteButton.addEventListener("click", () => {
+      records.splice(index, 1);
+      renderRecords();
+      $("recordStatus").textContent = "Pengamatan dihapus.";
+    });
+
+    actionCell.appendChild(deleteButton);
+    tr.appendChild(actionCell);
+    tbody.appendChild(tr);
+  });
+}
+
+function exportCsv() {
+  if (!records.length) {
+    $("recordStatus").textContent = "Belum ada data untuk diunduh.";
+    return;
+  }
+
+  const escapeCsv = value =>
+    '"' + String(value ?? "").replace(/"/g, '""') + '"';
+
+  const rows = [
+    ["Waktu", "Area", "Kondisi", "Lux terukur", "Skor kamera relatif", "Catatan"],
+    ...records.map(r => [r.time, r.area, r.condition, r.lux ?? "", r.score ?? "", r.notes])
+  ];
+
+  const csv = "\uFEFF" +
+    rows.map(row => row.map(escapeCsv).join(",")).join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "classlight-pengamatan.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  $("recordStatus").textContent = "File CSV siap diunduh.";
+}
+
+function makeSummary() {
+  const finding = $("finding").value.trim();
+  const conclusion = $("conclusion").value.trim();
+  const suggestion = $("suggestion").value.trim();
+
+  if (!finding || !conclusion || !suggestion) {
+    $("summaryStatus").textContent =
+      "Isi temuan, kesimpulan, dan saran terlebih dahulu.";
+    return;
+  }
+
+  $("summaryOutput").textContent =
+    "TEMUAN PENGAMATAN\n" + finding +
+    "\n\nKESIMPULAN\n" + conclusion +
+    "\n\nSARAN HEMAT ENERGI\n" + suggestion;
+
+  $("summaryOutput").hidden = false;
+  $("copySummary").hidden = false;
+  $("summaryStatus").textContent = "Ringkasan laporan berhasil dibuat.";
+}
+
+async function copySummary() {
+  const text = $("summaryOutput").textContent;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      $("summaryStatus").textContent = "✅ Ringkasan berhasil disalin.";
+    } else {
+      const temporary = document.createElement("textarea");
+      temporary.value = text;
+      temporary.style.position = "fixed";
+      temporary.style.opacity = "0";
+      document.body.appendChild(temporary);
+      temporary.select();
+
+      const copied = document.execCommand("copy");
+      temporary.remove();
+
+      $("summaryStatus").textContent = copied
+        ? "✅ Ringkasan berhasil disalin."
+        : "Salin teks ringkasan secara manual.";
+    }
+  } catch (error) {
+    $("summaryStatus").textContent = "Salin teks ringkasan secara manual.";
+  }
+}
+
+$("startCamera").addEventListener("click", startCamera);
+
+$("stopCamera").addEventListener("click", () => {
+  stopCamera();
+  showCameraStatus("Kamera telah dimatikan.");
+});
+
+$("measure").addEventListener("click", measureBrightness);
+
+$("cameraChoice").addEventListener("change", () => {
+  if (cameraStream) startCamera();
+});
+
+$("saveRecord").addEventListener("click", saveRecord);
+$("exportCsv").addEventListener("click", exportCsv);
+$("makeSummary").addEventListener("click", makeSummary);
+$("copySummary").addEventListener("click", copySummary);
+
+window.addEventListener("pagehide", stopCamera);
+</script>
+</body>
+</html>
